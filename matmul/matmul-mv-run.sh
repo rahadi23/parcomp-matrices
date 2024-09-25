@@ -16,12 +16,12 @@ do
     RUN_FILE="${PWD}/run/matmul-mv-run-n${N}-np${NP}.sh"
     O_FILE="${PWD}/run/matmul-mv-n${N}-np${NP}.o"
 
-    N_NODES=$((NP / 8 + 1))
+    N_NODES=$((NP / 8))
     NODE_LIST="node-01"
 
-    if [ $N_NODES -gt 1 ];
+    if [ $N_NODES -gt 0 ];
     then
-      for NODE in $(seq 2 $N_NODES)
+      for NODE in $(seq 2 $((N_NODES + 1)))
       do
         NODE_LIST="${NODE_LIST},node-0${NODE}"
       done
