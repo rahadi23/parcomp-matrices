@@ -56,3 +56,9 @@ for (l := 0; l < N; l++) {
 ```
 
 Modified to work on our environments from [andadiana/cannon-algorithm-mpi](https://github.com/andadiana/cannon-algorithm-mpi)
+
+### 📂 summa
+
+[SUMMA: Scalable Universal Matrix Multiplication Algorithm](https://dl.acm.org/doi/10.5555/899248)
+
+Adapted from [irified/mpi101](https://github.com/irifed/mpi101/blob/master/summa.c)
