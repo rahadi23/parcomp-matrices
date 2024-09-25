@@ -16,16 +16,18 @@ do
     RUN_FILE="${PWD}/run/matmul-mv-run-n${N}-np${NP}.sh"
     O_FILE="${PWD}/run/matmul-mv-n${N}-np${NP}.o"
 
-    N_NODES=$((NP / 8))
-    NODE_LIST="node-01"
+    N_NODES=$((NP / 8 + 1))
+    NODE_LIST=""
 
-    if [ $N_NODES -gt 0 ];
-    then
-      for NODE in $(seq 2 $((N_NODES + 1)))
-      do
+    for NODE in $(seq 1 $N_NODES)
+    do
+      if [ $N_NODES -eq 1 ];
+      then
+        NODE_LIST="node-0${NODE}"
+      else
         NODE_LIST="${NODE_LIST},node-0${NODE}"
-      done
-    fi
+      fi
+    done
 
     mpicc $SRC_FILE -o $O_FILE
 
