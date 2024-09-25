@@ -9,7 +9,7 @@ These algorithms are developed with the following assumptions:
 ### Multi-nodes environment
 
 - Using (up to) 8 nodes slurm environment with hostname: `node-01`, `node-02`, ..., `node-08`
-- Round-robin distributed in node-first manner instead of core-first
+- Round-robin distributed in core-first manner instead of node-first
 
 ## Algorithm List
 
@@ -33,7 +33,7 @@ Return C
 
 [Cannon's distributed algorithm for matrix multiplication](https://en.wikipedia.org/wiki/Cannon%27s_algorithm)
 
-> When multiplying two n×n matrices A and B, we need n×n processing nodes p arranged in a 2D grid. 
+> When multiplying two n×n matrices A and B, we need n×n processing nodes p arranged in a 2D grid.
 
 ```
 // PE(i , j)
@@ -55,4 +55,4 @@ for (l := 0; l < N; l++) {
 }
 ```
 
-Modified to works on our environments from [andadiana/cannon-algorithm-mpi](https://github.com/andadiana/cannon-algorithm-mpi)
+Modified to work on our environments from [andadiana/cannon-algorithm-mpi](https://github.com/andadiana/cannon-algorithm-mpi)
