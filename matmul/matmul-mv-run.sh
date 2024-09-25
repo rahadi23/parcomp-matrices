@@ -16,10 +16,10 @@ do
     RUN_FILE="${PWD}/run/matmul-mv-run-n${N}-np${NP}.sh"
     O_FILE="${PWD}/run/matmul-mv-n${N}-np${NP}.o"
 
-    N_NODES=$((NP > 8 ? 8 : NP))
+    N_NODES=$((NP / 8 + 1))
     NODE_LIST="node-01"
 
-    if [ $NP -gt 1 ];
+    if [ $N_NODES -gt 1 ];
     then
       for NODE in $(seq 2 $N_NODES)
       do
@@ -29,12 +29,10 @@ do
 
     mpicc $SRC_FILE -o $O_FILE
 
-    NUM_PROCESSORS=$((NP+1))
-
     sed "s|__LOG_NAME__|${LOG_FILE}|" ${PWD}/templates/template-matmul-run.sh > $RUN_FILE
     sed -i "s|__NUM_NODES__|${N_NODES}|" $RUN_FILE
     sed -i "s|__NODE_LIST__|${NODE_LIST}|" $RUN_FILE
-    sed -i "s|__NUM_PROCESSORS__|${NUM_PROCESSORS}|" $RUN_FILE
+    sed -i "s|__NUM_PROCESSORS__|${NP}|" $RUN_FILE
     sed -i "s|__O_FILE__|${O_FILE}|" $RUN_FILE
 
     chmod +x $RUN_FILE
