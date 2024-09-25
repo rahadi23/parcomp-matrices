@@ -31,7 +31,7 @@ do
 
     NUM_PROCESSORS=$((NP+1))
 
-    sed "s|__LOG_NAME__|${LOG_FILE}|" ${PWD}/templates/template-matmul-mm-run.sh > $RUN_FILE
+    sed "s|__LOG_NAME__|${LOG_FILE}|" ${PWD}/templates/template-matmul-run.sh > $RUN_FILE
     sed -i "s|__NUM_NODES__|${N_NODES}|" $RUN_FILE
     sed -i "s|__NODE_LIST__|${NODE_LIST}|" $RUN_FILE
     sed -i "s|__NUM_PROCESSORS__|${NUM_PROCESSORS}|" $RUN_FILE
