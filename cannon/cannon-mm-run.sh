@@ -10,7 +10,7 @@ do
 
   sed "s|__MATRIX_N_SIZE__|${N}|" ${PWD}/templates/template-cannon-mm.cpp > $SRC_FILE
 
-  for NP in 1 4 16
+  for NP in 1 4 16 64
   do
     LOG_FILE="${PWD}/logs/cannon-mm-n${N}-np${NP}.out"
     RUN_FILE="${PWD}/run/cannon-mm-run-n${N}-np${NP}.sh"
