@@ -14,7 +14,7 @@
 
 MPI_Status status;
 
-double a[N][N],b[N],c[N];
+double a[N][N],b[N][1],c[N][1];
 
 main(int argc, char **argv)
 {
@@ -32,7 +32,7 @@ main(int argc, char **argv)
       for (j=0; j<N; j++) {
         a[i][j]= 1.0;
       }
-      b[i] = 2.0;
+      b[i][0] = 2.0;
     }
 
     gettimeofday(&start, 0);
@@ -56,14 +56,14 @@ main(int argc, char **argv)
       source = i;
       MPI_Recv(&offset, 1, MPI_INT, source, 2, MPI_COMM_WORLD, &status);
       MPI_Recv(&rows, 1, MPI_INT, source, 2, MPI_COMM_WORLD, &status);
-      MPI_Recv(&c[offset], rows, MPI_DOUBLE, source, 2, MPI_COMM_WORLD, &status);
+      MPI_Recv(&c[offset][0], rows, MPI_DOUBLE, source, 2, MPI_COMM_WORLD, &status);
     }
 
     gettimeofday(&stop, 0);
 
     printf("Here is the result matrix:\n");
     for (i=0; i<N; i++) {
-      printf("%6.2f   ", c[i]);
+      printf("%6.2f   ", c[i][0]);
       printf ("\n");
     }
 
@@ -81,10 +81,10 @@ main(int argc, char **argv)
 
   /* Matrix multiplication */
   for (i=0; i<rows; i++) {
-    c[i] = 0.0;
+    c[i][0] = 0.0;
 
     for (j=0; j<N; j++) {
-      c[i] = c[i] + a[i][j] * b[j];
+      c[i][0] = c[i][0] + a[i][j] * b[j][0];
     }
   }
 
