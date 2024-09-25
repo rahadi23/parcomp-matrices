@@ -16,16 +16,18 @@ do
     RUN_FILE="${PWD}/run/cannon-mm-run-n${N}-np${NP}.sh"
     O_FILE="${PWD}/run/cannon-mm-n${N}-np${NP}.o"
 
-    N_NODES=$((NP > 8 ? 8 : NP))
-    NODE_LIST="node-01"
+    N_NODES=$((NP / 8 + 1))
+    NODE_LIST=""
 
-    if [ $NP -gt 1 ];
-    then
-      for NODE in $(seq 2 $N_NODES)
-      do
+    for NODE in $(seq 1 $N_NODES)
+    do
+      if [ $NODE -eq 1 ];
+      then
+        NODE_LIST="node-0${NODE}"
+      else
         NODE_LIST="${NODE_LIST},node-0${NODE}"
-      done
-    fi
+      fi
+    done
 
     mpic++ $SRC_FILE -o $O_FILE
 
