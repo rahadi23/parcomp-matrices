@@ -16,7 +16,7 @@ do
     RUN_FILE="${PWD}/run/cannon-mm-run-n${N}-np${NP}.sh"
     O_FILE="${PWD}/run/cannon-mm-n${N}-np${NP}.o"
 
-    N_NODES=$((NP / 8 + 1))
+    N_NODES=$(((NP - 1) / 8 + 1))
     NODE_LIST=""
 
     for NODE in $(seq 1 $N_NODES)

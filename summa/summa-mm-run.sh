@@ -7,7 +7,7 @@ mkdir -p ${PWD}/logs
 SRC_FILE="${PWD}/src/summa-mm.c"
 O_FILE="${PWD}/run/summa-mm.o"
 
-mpicc $SRC_FILE -o $O_FILE
+mpicc -g -Wall -std=c99 $SRC_FILE -o $O_FILE -lm
 
 for N in 256 512 1024 2048 4096
 do
@@ -16,7 +16,7 @@ do
     LOG_FILE="${PWD}/logs/summa-mm-n${N}-np${NP}.out"
     RUN_FILE="${PWD}/run/summa-mm-run-n${N}-np${NP}.sh"
 
-    N_NODES=$((NP / 8 + 1))
+    N_NODES=$(((NP - 1) / 8 + 1))
     NODE_LIST=""
 
     for NODE in $(seq 1 $N_NODES)
