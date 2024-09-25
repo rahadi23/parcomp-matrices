@@ -63,11 +63,11 @@ main(int argc, char **argv)
 
     gettimeofday(&stop, 0);
 
-    printf("Here is the result matrix:\n");
-    for (i=0; i<N; i++) {
-      printf("%6.2f   ", c[i][0]);
-      printf ("\n");
-    }
+    // printf("Here is the result matrix:\n");
+    // for (i=0; i<N; i++) {
+    //   printf("%6.2f   ", c[i][0]);
+    //   printf ("\n");
+    // }
 
     fprintf(stdout,"Time = %.6f\n\n",
          (stop.tv_sec+stop.tv_usec*1e-6)-(start.tv_sec+start.tv_usec*1e-6));
