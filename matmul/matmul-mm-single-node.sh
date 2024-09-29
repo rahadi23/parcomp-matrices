@@ -17,6 +17,6 @@ do
 
     cp ${PWD}/templates/template-hostfile $HOST_FILE
 
-    mpirun --hostfile $HOST_FILE -np $NP $O_FILE > $LOG_FILE
+    mpirun --hostfile $HOST_FILE -np $NP $O_FILE $N > $LOG_FILE
   done
 done

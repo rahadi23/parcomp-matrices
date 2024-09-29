@@ -32,6 +32,7 @@ do
     sed -i "s|__NODE_LIST__|${NODE_LIST}|" $RUN_FILE
     sed -i "s|__NUM_PROCESSORS__|${NP}|" $RUN_FILE
     sed -i "s|__O_FILE__|${O_FILE}|" $RUN_FILE
+    sed -i "s|__MATRIX_N__|${N}|" $RUN_FILE
 
     chmod +x $RUN_FILE
 
