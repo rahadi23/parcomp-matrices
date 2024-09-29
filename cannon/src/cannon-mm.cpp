@@ -8,8 +8,6 @@
 #include<math.h>
 #include<sys/time.h>
 
-#define N		__MATRIX_N_SIZE__ /* number of rows and columns in matrix */
-
 int allocMatrix(int*** mat, int rows, int cols) {
 	// Allocate rows*cols contiguous items
 	int* p = (int*)malloc(sizeof(int*) * rows * cols);
@@ -57,20 +55,34 @@ void printMatrix(int **mat, int size) {
 	}
 }
 
-void printMatrixFile(int **mat, int size, FILE *fp) {
-	for (int i = 0; i < size; i++) {
-		for (int j = 0; j < size; j++) {
-			fprintf(fp,"%d ", mat[i][j]);
-		}
-		fprintf(fp,"\n");
-	}
-}
-
 int main(int argc, char* argv[]) {
+	char *cp;
+	long LN;
+	int N;
+
+	// Check for the right number of arguments
+	if (argc != 2) {
+		fprintf(stderr, "[ERROR] Must be run with exactly 1 argument, found %d!\nUsage: %s <N>\n", argc-1, argv[0]);
+		exit(1);
+	}
+
+	cp = argv[1];
+	if (*cp == 0) {
+		fprintf(stderr, "[ERROR] Argument is an empty string\n");
+		exit(1);
+	}
+
+	LN = strtol(cp, &cp, 10);
+	if (*cp != 0) {
+		fprintf(stderr,"[ERROR] Argument '%s' is not an integer -- '%s'\n", argv[1], cp);
+		exit(1);
+	}
+
+	N = (int) LN;
+
 	MPI_Comm cartComm;
 	int dim[2], period[2], reorder;
 	int coord[2], id;
-	FILE *fp;
 	int **A = NULL, **B = NULL, **C = NULL;
 	int **localA = NULL, **localB = NULL, **localC = NULL;
 	int **localARec = NULL, **localBRec = NULL;
@@ -94,6 +106,7 @@ int main(int argc, char* argv[]) {
 	// Get the rank of the process
 	int rank;
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	
 	if (rank == 0) {
 		// Check matrix and world size
 		if (columns != rows) {
@@ -125,6 +138,8 @@ int main(int argc, char* argv[]) {
 			printf("[ERROR] Matrix alloc for B failed!\n");
 			MPI_Abort(MPI_COMM_WORLD, 5);
 		}
+
+		fprintf(stdout, "Matrix N = %d\n", N);
 
 		// Generate Matrices
 		for (i = 0; i < N; i++) {
