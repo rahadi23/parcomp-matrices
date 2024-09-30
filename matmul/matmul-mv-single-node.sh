@@ -12,7 +12,6 @@ do
   for NP in 1 2 4 8 16 32 64
   do
     LOG_FILE="${PWD}/logs/matmul-mv-single-node-n${N}-np${NP}.out"
-    O_FILE="${PWD}/out/matmul-mv-single-node-n${N}-np${NP}.o"
     HOST_FILE="${PWD}/run/hostfile"
 
     cp ${PWD}/templates/template-hostfile $HOST_FILE
