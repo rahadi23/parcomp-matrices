@@ -2,8 +2,8 @@
 
 mkdir -p ${PWD}/{out,run,logs}
 
-SRC_FILE="${PWD}/src/matmul-mm.cpp"
-O_FILE="${PWD}/out/matmul-mm.o"
+SRC_FILE="${PWD}/src/matmul-mv.cpp"
+O_FILE="${PWD}/out/matmul-mv.o"
 
 mpic++ $SRC_FILE -o $O_FILE
 
