@@ -53,7 +53,10 @@ do
       if [[ $IDLE_NODES_CNT -lt $N_NODES ]];
       then
         # The currently idle nodes count is insufficient, fallback to sequential node assignment
-        echo "[WARN] Insufficient Idle Node(s). Requested: $N_NODES, Idle: $IDLE_NODES_CNT, Using sequential nodes assignment for $RUN_FILE"
+        if [[ $NODE == "node-01" ]];
+        then
+          echo "[WARN] Insufficient Idle Node(s). Requested: $N_NODES, Idle: $IDLE_NODES_CNT, Using sequential nodes assignment for $RUN_FILE"
+        fi
 
         # Add NODE to the NODE_LIST
         NODE_LIST="${NODE_LIST},${NODE}"
@@ -62,7 +65,10 @@ do
         NODE_LIST_CNT=$((NODE_LIST_CNT + 1))
       else
         # The currently idle nodes count is sufficient
-        echo "[INFO] Using idle nodes assignment for $RUN_FILE"
+        if [[ $NODE == "node-01" ]];
+        then
+          echo "[INFO] Using idle nodes assignment for $RUN_FILE"
+        fi
 
          # Check if the current NODE is IDLE
         if [[ $IDLE_NODES == *"$NODE"* ]];
