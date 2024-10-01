@@ -11,12 +11,14 @@ for N in 256 512 1024 2048 4096
 do
   for NP in 1 4 16 64
   do
-    LOG_FILE="${PWD}/logs/cannon-mm-single-node-n${N}-np${NP}.out"
-    O_FILE="${PWD}/out/cannon-mm-single-node-n${N}-np${NP}.o"
+    printf -v PADDED_N "%04d" $N
+    printf -v PADDED_NP "%02d" $NP
+
+    LOG_FILE="${PWD}/logs/cannon-mm-single-node-n${PADDED_N}-np${PADDED_NP}.out"
     HOST_FILE="${PWD}/run/hostfile"
 
     cp ${PWD}/templates/template-hostfile $HOST_FILE
 
-    mpirun --hostfile $HOST_FILE -np $NP $O_FILE > $LOG_FILE
+    mpirun --hostfile $HOST_FILE -np $NP $O_FILE $N > $LOG_FILE
   done
 done
