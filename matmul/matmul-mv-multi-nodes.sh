@@ -52,6 +52,9 @@ do
     # Populate the nodes
     NODE_LIST=""
 
+    # Added node list count
+    NODE_LIST_CNT=0
+
     # Loop through node names
     for NODE in $(seq -f "node-%02g" 1 8)
     do
@@ -60,6 +63,16 @@ do
       then
         # NODE is IDLE, so add it to the NODE_LIST
         NODE_LIST="${NODE_LIST},${NODE}"
+
+        # Increment node list count
+        NODE_LIST_CNT=$((NODE_LIST_CNT + 1))
+      fi
+
+      # Check if NODE_LIST_CNT already satisfies N_NODES
+      if [[ $NODE_LIST_CNT -eq $N_NODES ]];
+      then
+        # Break the loop
+        break
       fi
     done
 
