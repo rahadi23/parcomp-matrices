@@ -22,7 +22,7 @@ do
 
     for NODE in $(seq -f "node-%02g" 1 8)
     do
-      if [ $NODE_LIST -eq "" ];
+      if [ $NODE_LIST == "" ];
       then
         NODE_LIST=$NODE
       else
