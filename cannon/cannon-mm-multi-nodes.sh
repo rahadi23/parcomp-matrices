@@ -40,15 +40,6 @@ do
     # Count of idle node(s)
     IDLE_NODES_CNT=$(echo $IDLE_NODES | grep -o "\n" | wc -l)
 
-    # Check if idle nodes count is sufficient to run the configuration
-    if [[ $IDLE_NODES_CNT -lt $N_NODES ]];
-    then
-      # The currently idle nodes count is insufficient, skip generating RUN_FILE for now
-      echo "[WARN] Insufficient Idle Node(s). Requested: $N_NODES, Idle: $IDLE_NODES_CNT, Skipping $RUN_FILE"
-      continue
-    fi
-
-    # The currently idle nodes count is sufficient, continue running
     # Populate the nodes
     NODE_LIST=""
 
@@ -58,14 +49,30 @@ do
     # Loop through node names
     for NODE in $(seq -f "node-%02g" 1 8)
     do
-      # Check if the current NODE is IDLE
-      if [[ $IDLE_NODES == *"$NODE"* ]];
+      # Check if idle nodes count is sufficient to run the configuration
+      if [[ $IDLE_NODES_CNT -lt $N_NODES ]];
       then
-        # NODE is IDLE, so add it to the NODE_LIST
+        # The currently idle nodes count is insufficient, fallback to sequential node assignment
+        echo "[WARN] Insufficient Idle Node(s). Requested: $N_NODES, Idle: $IDLE_NODES_CNT, Using sequential nodes assignment for $RUN_FILE"
+
+        # Add NODE to the NODE_LIST
         NODE_LIST="${NODE_LIST},${NODE}"
 
         # Increment node list count
         NODE_LIST_CNT=$((NODE_LIST_CNT + 1))
+      else
+        # The currently idle nodes count is sufficient
+        echo "[INFO] Using idle nodes assignment for $RUN_FILE"
+
+         # Check if the current NODE is IDLE
+        if [[ $IDLE_NODES == *"$NODE"* ]];
+        then
+          # NODE is IDLE, so add it to the NODE_LIST
+          NODE_LIST="${NODE_LIST},${NODE}"
+
+          # Increment node list count
+          NODE_LIST_CNT=$((NODE_LIST_CNT + 1))
+        fi
       fi
 
       # Check if NODE_LIST_CNT already satisfies N_NODES
