@@ -14,9 +14,15 @@
   "customizations": {
     // Configure properties specific to VS Code.
     "vscode": {
-      "settings": {},
+      "settings": {
+        "C_Cpp.default.includePath": [
+          "${workspaceFolder}/**",
+          "/home/vscode/.openmpi/include"
+        ]
+      },
       "extensions": [
-        "streetsidesoftware.code-spell-checker"
+        "ms-vscode.cpptools-extension-pack",
+        "eamodio.gitlens"
       ]
     }
   }
