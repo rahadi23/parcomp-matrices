@@ -25,13 +25,18 @@ do
     printf -v PADDED_N "%04d" $N
     printf -v PADDED_NP "%02d" $NP
 
+    # Task name
+    TASK="matmul-mv-dev-n${PADDED_N}-np${PADDED_NP}"
+
     # Log file name
-    LOG_FILE="${PWD}/logs/matmul-mv-dev-n${PADDED_N}-np${PADDED_NP}.out"
+    LOG_FILE="${PWD}/logs/${TASK}.out"
 
     # Run O_FILE the corresponding configurations
     # If --use-hwthread-cpus is specified on the mpirun command line,
     # then Open MPI will attempt to discover the number of hardware threads on the node,
     # and use that as the number of slots available. 
-    mpirun --use-hwthread-cpus -np $NP $O_FILE $N > $LOG_FILE
+    echo "🏃 ${TASK}..."
+    mpirun --use-hwthread-cpus -np $NP $O_FILE $N | tee $LOG_FILE
+    echo "✅ ${TASK}"
   done
 done
