@@ -16,7 +16,7 @@ mpic++ $SRC_FILE -o $O_FILE
 for N in 256 512 1024 2048 4096
 do
   # Loop through NP number of processors
-  for NP in 1 4 9 16
+  for NP in 1 4 16
   do
     # Create padded N (4 digits) and NP (2 digits) for log and run file name
     # Example:
