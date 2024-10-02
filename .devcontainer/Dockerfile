@@ -37,4 +37,4 @@ RUN echo export PATH="$PATH:/home/$USER/.openmpi/bin" >> /home/$USER/.bashrc
 RUN echo export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/home/$USER/.openmpi/lib/" >> /home/$USER/.bashrc
 
 # Install OpenMP library
-RUN sudo apt install libomp-dev -y
+RUN sudo apt update && sudo apt install libomp-dev -y
