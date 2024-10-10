@@ -1,3 +1,6 @@
 logs/
 out/
 run/
+
+cg.o
+cg

@@ -6,4 +6,4 @@
 
 # TODO: Add number of iterations placeholder
 
-mpirun --mca btl_tcp_if_exclude docker0,lo -np __NUM_PROCESSORS__ __TARGET__ __MATRIX_N__ __MATRIX_N__ 1000 -1
+mpirun --mca btl_tcp_if_exclude docker0,lo -np __NUM_PROCESSORS__ __TARGET__ __MATRIX_N__ __MATRIX_N__ 1000 1.0e-10

@@ -17,12 +17,13 @@ int main(int argc, char *argv[])
 
 	if (argc == 5)
 	{
-		int nx, ny, c, psiz, ran, eps;
+		int nx, ny, c, psiz, ran;
+		double eps;
 
 		nx = atoi(argv[1]);
 		ny = atoi(argv[2]);
 		c = atoi(argv[3]);
-		eps = atoi(argv[4]);
+		eps = atof(argv[4]);
 
 		double time = 0;
 
