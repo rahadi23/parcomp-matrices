@@ -118,7 +118,6 @@ int main(int argc, char *argv[])
   allocMatrix(&B, N, N);
   assert(B != NULL);
 
-  MPI_Barrier(MPI_COMM_WORLD);
   if (rank == 0)
   {
 
@@ -138,9 +137,10 @@ int main(int argc, char *argv[])
 
     // fprintf(stdout, "%2d: [INFO] Matrix B\n", rank);
     // printMatrix(&B, N, N);
-
-    totalTime -= MPI_Wtime();
   }
+
+  MPI_Barrier(MPI_COMM_WORLD);
+  totalTime -= MPI_Wtime();
 
   allocMatrix(&localA, rowsPerTask, N);
   assert(localA != NULL);
@@ -183,23 +183,22 @@ int main(int argc, char *argv[])
   gatherTime += MPI_Wtime();
 
   MPI_Barrier(MPI_COMM_WORLD);
+  totalTime += MPI_Wtime();
 
   fprintf(stdout, "%2d: [INFO] Sctr. time: %.6f\n", rank, scatterTime);
   fprintf(stdout, "%2d: [INFO] Bcst. time: %.6f\n", rank, bcastTime);
   fprintf(stdout, "%2d: [INFO] Gthr. time: %.6f\n", rank, gatherTime);
   fprintf(stdout, "%2d: [INFO] COMM. TIME: %.6f\n", rank, scatterTime + bcastTime + gatherTime);
   fprintf(stdout, "%2d: [INFO] COMP. TIME: %.6f\n", rank, compTime);
+  fprintf(stdout, "%2d: [INFO] TOTAL TIME: %.6f\n", rank, totalTime);
+  fprintf(stdout, "%2d: [INFO] IDLE  TIME: %.6f\n", rank, totalTime - (scatterTime + bcastTime + gatherTime + compTime));
 
-  if (rank == 0)
-  {
-    totalTime += MPI_Wtime();
-    fprintf(stdout, "%2d: [INFO] TOTAL TIME: %.6f\n", rank, totalTime);
-    fprintf(stdout, "%2d: [INFO] IDLE  TIME: %.6f\n", rank, totalTime - (scatterTime + bcastTime + gatherTime + compTime));
-
-    // Print result
-    // fprintf(stdout, "%2d: [INFO] Matrix result\n", rank);
-    // printMatrix(&C, N, N);
-  }
+  // if (rank == 0)
+  // {
+  //   // Print result
+  //   fprintf(stdout, "%2d: [INFO] Matrix result\n", rank);
+  //   printMatrix(&C, N, N);
+  // }
 
   free(A);
   free(B);

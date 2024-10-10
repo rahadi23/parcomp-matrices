@@ -4,10 +4,10 @@
 mkdir -p ${PWD}/{out,run,logs}
 
 # Src file name
-SRC_FILE="${PWD}/src/matmul-mm-cc.cpp"
+SRC_FILE="${PWD}/src/matmul-cc-mm.cpp"
 
 # Compiled file name
-O_FILE="${PWD}/out/matmul-mm-cc.o"
+O_FILE="${PWD}/out/matmul-cc-mm.o"
 
 # Compile SRC_FILE and output it to O_FILE
 mpic++ $SRC_FILE -o $O_FILE
@@ -26,10 +26,10 @@ do
     printf -v PADDED_NP "%02d" $NP
 
     # Log file name
-    LOG_FILE="${PWD}/logs/matmul-mm-cc-multi-nodes-n${PADDED_N}-np${PADDED_NP}.out"
+    LOG_FILE="${PWD}/logs/matmul-cc-mm-multi-nodes-n${PADDED_N}-np${PADDED_NP}.out"
 
     # Run filename
-    RUN_FILE="${PWD}/run/matmul-mm-cc-multi-nodes-n${PADDED_N}-np${PADDED_NP}.sh"
+    RUN_FILE="${PWD}/run/matmul-cc-mm-multi-nodes-n${PADDED_N}-np${PADDED_NP}.sh"
 
     # Number of nodes required for corresponding NP
     N_NODES=$(((NP - 1) / 8 + 1))
