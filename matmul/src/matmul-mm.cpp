@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <mpi.h>
 #include <sys/time.h>
+#include <sstream>
+#include "logger.h"
 
 void parseArgs(int argc, char *argv[], int *N)
 {
@@ -110,6 +112,15 @@ int main(int argc, char *argv[])
 
   int **A = NULL, **B = NULL, **C = NULL, **localA = NULL, **localB = NULL, **localC = NULL;
 
+  std::stringstream tl;
+  tl << rank << ": [INFO] Timeline: ";
+
+  double comp_time = 0;
+  double mpi_time = 0;
+
+  // start profiling
+  Logger logger(&tl);
+
   if (rank == 0)
   {
     fprintf(stdout, "%d: [INFO] N: %d, NP: %d\n", rank, N, size);
@@ -127,6 +138,7 @@ int main(int argc, char *argv[])
         B[i][j] = 1;
       }
     }
+    logger.log(&comp_time);
 
     // fprintf(stdout, "%d: [INFO] Matrix A\n", rank);
     // printMatrix(N, N, A);
@@ -147,15 +159,19 @@ int main(int argc, char *argv[])
 
       rowOffset += rowsPerTask;
     }
+    logger.log(&mpi_time, "MPI_Send");
 
     allocMatrix(&localA, rowsPerTask, N);
     allocMatrix(&localB, N, N);
+    logger.log(&comp_time);
 
     // Send & receive task to/from self (rank 0)
     MPI_Sendrecv(&(A[0][0]), rowsPerTask * N, MPI_INT, 0, 13, &(localA[0][0]), rowsPerTask * N, MPI_INT, 0, 13, MPI_COMM_WORLD, &status);
     MPI_Sendrecv(&(B[0][0]), N * N, MPI_INT, 0, 14, &(localB[0][0]), N * N, MPI_INT, 0, 14, MPI_COMM_WORLD, &status);
+    logger.log(&mpi_time, "MPI_Sendrecv");
 
     allocMatrix(&C, N, N);
+    logger.log(&comp_time);
 
     // Receive result (tag=2*)
     for (source = 1; source < size; source++)
@@ -165,14 +181,17 @@ int main(int argc, char *argv[])
 
       // fprintf(stdout, "%d: [INFO] Result received from %d\n", rank, source);
     }
+    logger.log(&mpi_time, "MPI_Recv");
 
     allocMatrix(&localC, rowsPerTask, N);
 
     // Multiply in rank 0
     matrixMultiply(localA, localB, rowsPerTask, N, &localC);
+    logger.log(&comp_time);
 
     // Send & receive result to/from self (rank 0)
     MPI_Sendrecv(&(localC[0][0]), rowsPerTask * N, MPI_INT, 0, 22, &(C[0][0]), rowsPerTask * N, MPI_INT, 0, 22, MPI_COMM_WORLD, &status);
+    logger.log(&mpi_time, "MPI_Sendrecv");
 
     gettimeofday(&stop, 0);
 
@@ -187,11 +206,13 @@ int main(int argc, char *argv[])
   {
     allocMatrix(&A, rowsPerTask, N);
     allocMatrix(&B, N, N);
+    logger.log(&comp_time);
 
     // Receive task (tag=1)
     MPI_Recv(&rowOffset, 1, MPI_INT, 0, 10, MPI_COMM_WORLD, &status);
     MPI_Recv(&(A[0][0]), rowsPerTask * N, MPI_INT, 0, 11, MPI_COMM_WORLD, &status);
     MPI_Recv(&(B[0][0]), N * N, MPI_INT, 0, 12, MPI_COMM_WORLD, &status);
+    logger.log(&mpi_time, "MPI_Recv");
 
     // fprintf(stdout, "%d: [INFO] Task received (rows %d, N %d)\n", rank, rowsPerTask, N);
 
@@ -199,15 +220,22 @@ int main(int argc, char *argv[])
 
     // Run task
     matrixMultiply(A, B, rowsPerTask, N, &C);
+    logger.log(&comp_time);
 
     // Send result (tag=2)
     MPI_Send(&rowOffset, 1, MPI_INT, 0, 20, MPI_COMM_WORLD);
     MPI_Send(&(C[0][0]), rowsPerTask * N, MPI_INT, 0, 21, MPI_COMM_WORLD);
+    logger.log(&mpi_time, "MPI_Send");
 
     // fprintf(stdout, "%d: [INFO] Result sent\n", rank);
   }
 
   MPI_Finalize();
+  std::cout << rank << ": [INFO] Total time: " << std::setprecision(6) << mpi_time + comp_time << std::endl;
+  std::cout << rank << ": [INFO] Comp time: " << std::setprecision(6) << comp_time << std::endl;
+  std::cout << rank << ": [INFO] MPI time: " << std::setprecision(6) << mpi_time << std::endl;
+  std::cout << rank << ": [INFO] MPI perc: " << std::setprecision(4) << mpi_time / (mpi_time + comp_time) * 100 << "%" << std::endl;
+  std::cout << tl.str() << std::endl;
 
   return 0;
 }
