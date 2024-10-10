@@ -2,10 +2,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <sstream>
 #include <mpi.h>
 #include <sys/time.h>
-#include "timer.h"
+#include <sstream>
+#include "logger.h"
 
 void parseArgs(int argc, char *argv[], int *N)
 {
@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
   double comp_time = 0;
   double mpi_time = 0;
 
-  Timer timer(&tl, &comp_time, &mpi_time);
+  Logger logger(&tl);
 
   if (rank == 0)
   {
@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
     gettimeofday(&start, 0);
 
     // Send task (tag=1*)
-    timer.log_comp();
+    logger.log(&comp_time);
     for (dest = 1; dest < size; dest++)
     {
       MPI_Send(&rowOffset, 1, MPI_INT, dest, 10, MPI_COMM_WORLD);
@@ -159,21 +159,21 @@ int main(int argc, char *argv[])
 
       rowOffset += rowsPerTask;
     }
-    timer.log_mpi("MPI_Send");
+    logger.log(&mpi_time, "MPI_Send");
 
     allocMatrix(&localA, rowsPerTask, N);
     allocMatrix(&localB, N, 1);
-    timer.log_comp();
+    logger.log(&comp_time);
 
     // Send & receive task to/from self (rank 0)
     MPI_Sendrecv(&(A[0][0]), rowsPerTask * N, MPI_INT, 0, 13, &(localA[0][0]), rowsPerTask * N, MPI_INT, 0, 13, MPI_COMM_WORLD, &status);
     MPI_Sendrecv(&(B[0][0]), N, MPI_INT, 0, 14, &(localB[0][0]), N, MPI_INT, 0, 14, MPI_COMM_WORLD, &status);
-    timer.log_mpi("MPI_Sendrecv");
+    logger.log(&mpi_time, "MPI_Sendrecv");
 
     allocMatrix(&C, N, 1);
 
     // Receive result (tag=2*)
-    timer.log_comp();
+    logger.log(&comp_time);
     for (source = 1; source < size; source++)
     {
       MPI_Recv(&rowOffset, 1, MPI_INT, source, 20, MPI_COMM_WORLD, &status);
@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
 
       // fprintf(stdout, "%d: [INFO] Result received from %d\n", rank, source);
     }
-    timer.log_mpi("MPI_Recv");
+    logger.log(&mpi_time, "MPI_Recv");
 
     allocMatrix(&localC, rowsPerTask, 1);
 
@@ -189,9 +189,9 @@ int main(int argc, char *argv[])
     matrixMultiply(localA, localB, rowsPerTask, 1, &localC);
 
     // Send & receive result to/from self (rank 0)
-    timer.log_comp();
+    logger.log(&comp_time);
     MPI_Sendrecv(&(localC[0][0]), rowsPerTask, MPI_INT, 0, 22, &(C[0][0]), rowsPerTask, MPI_INT, 0, 22, MPI_COMM_WORLD, &status);
-    timer.log_mpi("MPI_Sendrecv");
+    logger.log(&mpi_time, "MPI_Sendrecv");
 
     gettimeofday(&stop, 0);
 
@@ -208,11 +208,11 @@ int main(int argc, char *argv[])
     allocMatrix(&B, N, 1);
 
     // Receive task (tag=1)
-    timer.log_comp();
+    logger.log(&comp_time);
     MPI_Recv(&rowOffset, 1, MPI_INT, 0, 10, MPI_COMM_WORLD, &status);
     MPI_Recv(&(A[0][0]), rowsPerTask * N, MPI_INT, 0, 11, MPI_COMM_WORLD, &status);
     MPI_Recv(&(B[0][0]), N, MPI_INT, 0, 12, MPI_COMM_WORLD, &status);
-    timer.log_mpi("MPI_Recv");
+    logger.log(&mpi_time, "MPI_Recv");
 
     // fprintf(stdout, "%d: [INFO] Task received (rows %d, N %d)\n", rank, rowsPerTask, N);
 
@@ -223,10 +223,10 @@ int main(int argc, char *argv[])
 
     // Send result (tag=2)
 
-    timer.log_comp();
+    logger.log(&comp_time);
     MPI_Send(&rowOffset, 1, MPI_INT, 0, 20, MPI_COMM_WORLD);
     MPI_Send(&(C[0][0]), rowsPerTask, MPI_INT, 0, 21, MPI_COMM_WORLD);
-    timer.log_mpi("MPI_Send");
+    logger.log(&mpi_time, "MPI_Send");
 
     // fprintf(stdout, "%d: [INFO] Result sent\n", rank);
   }
