@@ -39,7 +39,7 @@ do
 
     # Run O_FILE the corresponding configurations
     echo "🏃 ${TASK}..."
-    mpirun --hostfile -np $NP $O_FILE $N | tee $LOG_FILE
+    mpirun --hostfile $HOST_FILE -np $NP $O_FILE $N | tee $LOG_FILE
     echo "✅ ${TASK}"
   done
 done
