@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
     gettimeofday(&start, 0);
 
     // Send task (tag=1*)
-    logger.log(&comp_time);
+    logger.log(&comp_time, "COMP");
     for (dest = 1; dest < size; dest++)
     {
       MPI_Send(&rowOffset, 1, MPI_INT, dest, 10, MPI_COMM_WORLD);
@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
 
     allocMatrix(&localA, rowsPerTask, N);
     allocMatrix(&localB, N, 1);
-    logger.log(&comp_time);
+    logger.log(&comp_time, "COMP");
 
     // Send & receive task to/from self (rank 0)
     MPI_Sendrecv(&(A[0][0]), rowsPerTask * N, MPI_INT, 0, 13, &(localA[0][0]), rowsPerTask * N, MPI_INT, 0, 13, MPI_COMM_WORLD, &status);
@@ -173,7 +173,7 @@ int main(int argc, char *argv[])
     allocMatrix(&C, N, 1);
 
     // Receive result (tag=2*)
-    logger.log(&comp_time);
+    logger.log(&comp_time, "COMP");
     for (source = 1; source < size; source++)
     {
       MPI_Recv(&rowOffset, 1, MPI_INT, source, 20, MPI_COMM_WORLD, &status);
@@ -189,7 +189,7 @@ int main(int argc, char *argv[])
     matrixMultiply(localA, localB, rowsPerTask, 1, &localC);
 
     // Send & receive result to/from self (rank 0)
-    logger.log(&comp_time);
+    logger.log(&comp_time, "COMP");
     MPI_Sendrecv(&(localC[0][0]), rowsPerTask, MPI_INT, 0, 22, &(C[0][0]), rowsPerTask, MPI_INT, 0, 22, MPI_COMM_WORLD, &status);
     logger.log(&mpi_time, "MPI_Sendrecv");
 
@@ -208,7 +208,7 @@ int main(int argc, char *argv[])
     allocMatrix(&B, N, 1);
 
     // Receive task (tag=1)
-    logger.log(&comp_time);
+    logger.log(&comp_time, "COMP");
     MPI_Recv(&rowOffset, 1, MPI_INT, 0, 10, MPI_COMM_WORLD, &status);
     MPI_Recv(&(A[0][0]), rowsPerTask * N, MPI_INT, 0, 11, MPI_COMM_WORLD, &status);
     MPI_Recv(&(B[0][0]), N, MPI_INT, 0, 12, MPI_COMM_WORLD, &status);
@@ -223,7 +223,7 @@ int main(int argc, char *argv[])
 
     // Send result (tag=2)
 
-    logger.log(&comp_time);
+    logger.log(&comp_time, "COMP");
     MPI_Send(&rowOffset, 1, MPI_INT, 0, 20, MPI_COMM_WORLD);
     MPI_Send(&(C[0][0]), rowsPerTask, MPI_INT, 0, 21, MPI_COMM_WORLD);
     logger.log(&mpi_time, "MPI_Send");

@@ -138,7 +138,7 @@ int main(int argc, char *argv[])
         B[i][j] = 1;
       }
     }
-    logger.log(&comp_time);
+    logger.log(&comp_time, "COMP");
 
     // fprintf(stdout, "%d: [INFO] Matrix A\n", rank);
     // printMatrix(N, N, A);
@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
 
     allocMatrix(&localA, rowsPerTask, N);
     allocMatrix(&localB, N, N);
-    logger.log(&comp_time);
+    logger.log(&comp_time, "COMP");
 
     // Send & receive task to/from self (rank 0)
     MPI_Sendrecv(&(A[0][0]), rowsPerTask * N, MPI_INT, 0, 13, &(localA[0][0]), rowsPerTask * N, MPI_INT, 0, 13, MPI_COMM_WORLD, &status);
@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
     logger.log(&mpi_time, "MPI_Sendrecv");
 
     allocMatrix(&C, N, N);
-    logger.log(&comp_time);
+    logger.log(&comp_time, "COMP");
 
     // Receive result (tag=2*)
     for (source = 1; source < size; source++)
@@ -187,7 +187,7 @@ int main(int argc, char *argv[])
 
     // Multiply in rank 0
     matrixMultiply(localA, localB, rowsPerTask, N, &localC);
-    logger.log(&comp_time);
+    logger.log(&comp_time, "COMP");
 
     // Send & receive result to/from self (rank 0)
     MPI_Sendrecv(&(localC[0][0]), rowsPerTask * N, MPI_INT, 0, 22, &(C[0][0]), rowsPerTask * N, MPI_INT, 0, 22, MPI_COMM_WORLD, &status);
@@ -206,7 +206,7 @@ int main(int argc, char *argv[])
   {
     allocMatrix(&A, rowsPerTask, N);
     allocMatrix(&B, N, N);
-    logger.log(&comp_time);
+    logger.log(&comp_time, "COMP");
 
     // Receive task (tag=1)
     MPI_Recv(&rowOffset, 1, MPI_INT, 0, 10, MPI_COMM_WORLD, &status);
@@ -220,7 +220,7 @@ int main(int argc, char *argv[])
 
     // Run task
     matrixMultiply(A, B, rowsPerTask, N, &C);
-    logger.log(&comp_time);
+    logger.log(&comp_time, "COMP");
 
     // Send result (tag=2)
     MPI_Send(&rowOffset, 1, MPI_INT, 0, 20, MPI_COMM_WORLD);
