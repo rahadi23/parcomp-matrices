@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
   int rowOffset = rowsPerTask;
 
   std::stringstream tl;
-  tl << rank << ": [INFO] Timeline: ";
+  tl << std::setw(2) << rank << ": [INFO] Timeline: ";
 
   double compTime = 0;
   double mpiSendTime = 0.0;
