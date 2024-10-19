@@ -25,8 +25,10 @@ do
     printf -v PADDED_N "%04d" $N
     printf -v PADDED_NP "%02d" $NP
 
+    TASK="cannon-mm-single-n${PADDED_N}-np${PADDED_NP}"
+
     # Log file name
-    LOG_FILE="${PWD}/logs/cannon-mm-single-node-n${PADDED_N}-np${PADDED_NP}.out"
+    LOG_FILE="${PWD}/logs/${TASK}.out"
 
     # Host file name
     HOST_FILE="${PWD}/run/hostfile"
@@ -35,6 +37,8 @@ do
     cp ${PWD}/templates/template-hostfile $HOST_FILE
 
     # Run O_FILE the corresponding configurations
+    echo "🏃 ${TASK}..."
     mpirun --hostfile $HOST_FILE -np $NP $O_FILE $N > $LOG_FILE
+    echo "✅ ${TASK}"
   done
 done
