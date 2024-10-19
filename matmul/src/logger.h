@@ -22,17 +22,17 @@ private:
 public:
   Logger(std::iostream *tl) : stream(tl) {}
 
-  void log(double *time_agg)
+  void log(double *timeAgg)
   {
     double elapsed = lapse();
-    *time_agg += elapsed;
+    *timeAgg += elapsed;
     *stream << std::setprecision(PRECISION) << elapsed << ',';
   }
 
-  void log(double *time_agg, std::string tag)
+  void log(double *timeAgg, std::string tag)
   {
     double elapsed = lapse();
-    *time_agg += elapsed;
+    *timeAgg += elapsed;
     *stream << tag << ':' << std::setprecision(PRECISION) << elapsed << ',';
   }
 };
