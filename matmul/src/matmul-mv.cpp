@@ -239,9 +239,9 @@ int main(int argc, char *argv[])
   double mpiTime = mpiSendTime + mpiRecvTime + mpiSendRecvTime;
   double totalTime = compTime + mpiTime;
 
-  std::cout << std::setw(2) << rank << ": [INFO] Send  time: " << std::setprecision(6) << mpiTime << std::endl;
-  std::cout << std::setw(2) << rank << ": [INFO] Recv  time: " << std::setprecision(6) << mpiTime << std::endl;
-  std::cout << std::setw(2) << rank << ": [INFO] SndR. time: " << std::setprecision(6) << mpiTime << std::endl;
+  std::cout << std::setw(2) << rank << ": [INFO] Send  time: " << std::setprecision(6) << mpiSendTime << std::endl;
+  std::cout << std::setw(2) << rank << ": [INFO] Recv  time: " << std::setprecision(6) << mpiRecvTime << std::endl;
+  std::cout << std::setw(2) << rank << ": [INFO] SndR. time: " << std::setprecision(6) << mpiSendRecvTime << std::endl;
   std::cout << std::setw(2) << rank << ": [INFO] COMM. TIME: " << std::setprecision(6) << mpiTime << std::endl;
   std::cout << std::setw(2) << rank << ": [INFO] COMP. TIME: " << std::setprecision(6) << compTime << std::endl;
   std::cout << std::setw(2) << rank << ": [INFO] TOTAL TIME: " << std::setprecision(6) << totalTime << std::endl;
