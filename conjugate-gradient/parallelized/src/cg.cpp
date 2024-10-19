@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
     cout << setw(2) << ran << ": [INFO] COMM. TIME: " << setprecision(6) << mpiTime << endl;
     cout << setw(2) << ran << ": [INFO] COMP. TIME: " << setprecision(6) << compTime << endl;
     cout << setw(2) << ran << ": [INFO] TOTAL TIME: " << setprecision(6) << totalTime << endl;
-    cout << tl.str() << endl;
+    // cout << tl.str() << endl;
   }
 
   return 0;
