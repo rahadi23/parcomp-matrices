@@ -5,6 +5,8 @@
 #include <mpi.h>
 #include <sys/time.h>
 #include <assert.h>
+#include "sstream"
+#include "logger.h"
 
 void parseArgs(int argc, char *argv[], int *N)
 {
@@ -109,8 +111,14 @@ int main(int argc, char *argv[])
   int rowsPerTask = N / size;
   int rowOffset = rowsPerTask;
 
+  double mpiScatterTime = 0.0, mpiBcastTime = 0.0, mpiGatherTime = 0.0, compTime = 0.0, idleTime = 0.0;
+  std::stringstream tl;
+
+  tl << std::setw(2) << rank << ": [INFO] Timeline: ";
+
+  Logger logger(&tl);
+
   int **A = NULL, **B = NULL, **C = NULL, **localA = NULL, **localC = NULL;
-  double totalTime = 0.0, scatterTime = 0.0, bcastTime = 0.0, gatherTime = 0.0, compTime = 0.0;
 
   allocMatrix(&A, N, N);
   assert(A != NULL);
@@ -138,60 +146,66 @@ int main(int argc, char *argv[])
     // fprintf(stdout, "%2d: [INFO] Matrix B\n", rank);
     // printMatrix(&B, N, N);
   }
+  logger.log(&compTime, "COMP");
 
   MPI_Barrier(MPI_COMM_WORLD);
-  totalTime -= MPI_Wtime();
+  // totalTime -= MPI_Wtime();
+  logger.log(&idleTime, "IDLE");
 
   allocMatrix(&localA, rowsPerTask, N);
   assert(localA != NULL);
+  logger.log(&compTime, "COMP");
 
   // Scatter
   MPI_Barrier(MPI_COMM_WORLD);
-  scatterTime -= MPI_Wtime();
+  // mpiScatterTime -= MPI_Wtime();
+  logger.log(&idleTime, "IDLE");
 
   MPI_Scatter(&(A[0][0]), rowsPerTask * N, MPI_INT, &(localA[0][0]), rowsPerTask * N, MPI_INT, 0, MPI_COMM_WORLD);
+  logger.log(&mpiScatterTime, "MPI_Scatter");
 
   MPI_Barrier(MPI_COMM_WORLD);
-  scatterTime += MPI_Wtime();
+  // mpiScatterTime += MPI_Wtime();
+  logger.log(&idleTime, "IDLE");
 
   // Bcast
   MPI_Barrier(MPI_COMM_WORLD);
-  bcastTime -= MPI_Wtime();
+  // mpiBcastTime -= MPI_Wtime();
+  logger.log(&idleTime, "IDLE");
 
   MPI_Bcast(&(B[0][0]), N * N, MPI_INT, 0, MPI_COMM_WORLD);
+  logger.log(&mpiBcastTime, "MPI_Bcast");
 
   MPI_Barrier(MPI_COMM_WORLD);
-  bcastTime += MPI_Wtime();
+  // mpiBcastTime += MPI_Wtime();
+  logger.log(&idleTime, "IDLE");
 
   allocMatrix(&localC, rowsPerTask, N);
   assert(localC != NULL);
 
-  compTime -= MPI_Wtime();
+  // compTime -= MPI_Wtime();
   matrixMultiply(localA, B, rowsPerTask, N, &localC);
-  compTime += MPI_Wtime();
+  // compTime += MPI_Wtime();
 
   allocMatrix(&C, N, N);
   assert(C != NULL);
+  logger.log(&compTime, "COMP");
 
   // Gather
   MPI_Barrier(MPI_COMM_WORLD);
-  gatherTime -= MPI_Wtime();
+  logger.log(&idleTime, "IDLE");
+  // mpiGatherTime -= MPI_Wtime();
 
   MPI_Gather(&(localC[0][0]), rowsPerTask * N, MPI_INT, &C[0][0], rowsPerTask * N, MPI_INT, 0, MPI_COMM_WORLD);
+  logger.log(&mpiGatherTime, "MPI_Gather");
 
   MPI_Barrier(MPI_COMM_WORLD);
-  gatherTime += MPI_Wtime();
+  logger.log(&idleTime, "IDLE");
+  // mpiGatherTime += MPI_Wtime();
 
   MPI_Barrier(MPI_COMM_WORLD);
-  totalTime += MPI_Wtime();
-
-  fprintf(stdout, "%2d: [INFO] Sctr. time: %.6f\n", rank, scatterTime);
-  fprintf(stdout, "%2d: [INFO] Bcst. time: %.6f\n", rank, bcastTime);
-  fprintf(stdout, "%2d: [INFO] Gthr. time: %.6f\n", rank, gatherTime);
-  fprintf(stdout, "%2d: [INFO] COMM. TIME: %.6f\n", rank, scatterTime + bcastTime + gatherTime);
-  fprintf(stdout, "%2d: [INFO] COMP. TIME: %.6f\n", rank, compTime);
-  fprintf(stdout, "%2d: [INFO] TOTAL TIME: %.6f\n", rank, totalTime);
-  fprintf(stdout, "%2d: [INFO] IDLE  TIME: %.6f\n", rank, totalTime - (scatterTime + bcastTime + gatherTime + compTime));
+  logger.log(&idleTime, "IDLE");
+  // totalTime += MPI_Wtime();
 
   // if (rank == 0)
   // {
@@ -205,9 +219,24 @@ int main(int argc, char *argv[])
   free(C);
   free(localA);
   free(localC);
+  logger.log(&compTime, "COMP");
 
   MPI_Barrier(MPI_COMM_WORLD);
+  logger.log(&idleTime, "IDLE");
+
   MPI_Finalize();
+
+  double commTime = mpiScatterTime + mpiBcastTime + mpiGatherTime;
+  double totalTime = commTime + compTime + idleTime;
+
+  fprintf(stdout, "%2d: [INFO] Sctr. time: %.6f\n", rank, mpiScatterTime);
+  fprintf(stdout, "%2d: [INFO] Bcst. time: %.6f\n", rank, mpiBcastTime);
+  fprintf(stdout, "%2d: [INFO] Gthr. time: %.6f\n", rank, mpiGatherTime);
+  fprintf(stdout, "%2d: [INFO] COMM. TIME: %.6f\n", rank, commTime);
+  fprintf(stdout, "%2d: [INFO] COMP. TIME: %.6f\n", rank, compTime);
+  fprintf(stdout, "%2d: [INFO] TOTAL TIME: %.6f\n", rank, totalTime);
+  fprintf(stdout, "%2d: [INFO] IDLE  TIME: %.6f\n", rank, idleTime);
+  std::cout << tl.str() << std::endl;
 
   return 0;
 }
