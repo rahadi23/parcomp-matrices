@@ -26,7 +26,7 @@ do
     printf -v PADDED_NP "%02d" $NP
 
     # Number of nodes required for corresponding NP
-    TASK="matmul-mv-dev-n${PADDED_N}-np${PADDED_NP}"
+    TASK="matmul-cc-mm-single-node-n${PADDED_N}-np${PADDED_NP}"
 
     # Log file name
     LOG_FILE="${PWD}/logs/${TASK}.out"
