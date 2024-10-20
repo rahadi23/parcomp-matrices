@@ -25,7 +25,7 @@ do
     printf -v PADDED_N "%04d" $N
     printf -v PADDED_NP "%02d" $NP
 
-    TASK="cannon-mm-single-n${PADDED_N}-np${PADDED_NP}"
+    TASK="cannon-mm-single-node-n${PADDED_N}-np${PADDED_NP}"
 
     # Log file name
     LOG_FILE="${PWD}/logs/${TASK}.out"
