@@ -15,7 +15,7 @@ for file in $files; do
 
     while IFS= read -r line; do
       # extract the key and value from file content lines
-      if [[ "$line" =~ ^\ *(.*)\:\ *\[INFO\]\ *([a-zA-Z\.\ ]*)\ *\:\ *(.*)$ ]]; then
+      if [[ "$line" =~ ^\ *([0-9]*)\:?\ *\[INFO\]\ *([a-zA-Z\.\ ]*)\ *\:\ *(.*)$ ]]; then
         p=${BASH_REMATCH[1]}
         key=${BASH_REMATCH[2]}
         val=${BASH_REMATCH[3]}
