@@ -7,7 +7,7 @@ echo "alg;env;n;np;p;key;val"
 
 for file in $files; do 
   # extract the algorithm, environment, n, np from the file name
-  if [[ "$file" =~ ^(.+)\-(dev|single\-node|multiple\-nodes)\-n0*(.*)\-np0*(.*)\.out$ ]]; then
+  if [[ "$file" =~ ^(.+)\-(dev|single|single\-node|multiple\-nodes)\-n0*(.*)\-np0*(.*)\.(out|log)$ ]]; then
     alg=${BASH_REMATCH[1]}
     env=${BASH_REMATCH[2]}
     n=${BASH_REMATCH[3]}
