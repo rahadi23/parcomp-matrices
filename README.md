@@ -15,7 +15,7 @@ These algorithms are developed with the following assumptions:
 
 ### 📂 matmul
 
-[Iterative matrix multiplication algorithm](https://en.wikipedia.org/wiki/Matrix_multiplication_algorithm#Iterative_algorithm)
+[Iterative matrix multiplication algorithm](https://en.wikipedia.org/wiki/Matrix_multiplication_algorithm#Iterative_algorithm) using peer-to-peer methods (`MPI_Send`, `MPI_Recv`)
 
 ```
 Input: matrices A and B
@@ -28,6 +28,38 @@ For i from 1 to n:
         Set Cij ← sum
 Return C
 ```
+
+### 📂 matmul-cc
+
+[Iterative matrix multiplication algorithm](https://en.wikipedia.org/wiki/Matrix_multiplication_algorithm#Iterative_algorithm) using Collective Communication methods (`MPI_Scatter`, `MPI_Gather`)
+
+```
+Input: matrices A and B
+Let C be a new matrix of the appropriate size
+For i from 1 to n:
+    For j from 1 to p:
+        Let sum = 0
+        For k from 1 to m:
+            Set sum ← sum + Aik × Bkj
+        Set Cij ← sum
+Return C
+```
+
+### 📂 conjugate-gradient
+
+Matrix x vector equation solver with [Conjugate gradient method](https://en.wikipedia.org/wiki/Conjugate_gradient_method).
+
+#### Definition
+
+Suppose we want to solve the system of linear equations
+
+$$
+    {\displaystyle \mathbf {A} \mathbf {x} =\mathbf {b} }
+$$
+
+for the vector ${\displaystyle \mathbf {x} }$, where the known ${\displaystyle n\times n}$ matrix ${\displaystyle \mathbf {A} }$ is symmetric (i.e., ${\displaystyle \mathbf {A}^\mathbf{T} =\mathbf{A}}$), positive-definite (i.e. ${\displaystyle \mathbf{x}^\mathbf{T}\mathbf{A}\mathbf{x} > 0}$ for all non-zero vectors ${\displaystyle \mathbf {x} }$ in ${\displaystyle \mathbf{R}^\mathbf{n}}$), and real, and ${\displaystyle \mathbf {b} }$ is known as well. We denote the unique solution of this system by ${\displaystyle \mathbf {x} _{\\*}}$.
+
+Modified to work on our environments from [akjain90/MPI-parallelized-conjugate-gradient-solver](https://github.com/akjain90/MPI-parallelized-conjugate-gradient-solver)
 
 ### 📂 cannon
 
@@ -56,9 +88,3 @@ for (l := 0; l < N; l++) {
 ```
 
 Modified to work on our environments from [andadiana/cannon-algorithm-mpi](https://github.com/andadiana/cannon-algorithm-mpi)
-
-### 📂 summa
-
-[SUMMA: Scalable Universal Matrix Multiplication Algorithm](https://dl.acm.org/doi/10.5555/899248)
-
-Adapted from [irified/mpi101](https://github.com/irifed/mpi101/blob/master/summa.c)
