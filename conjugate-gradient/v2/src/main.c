@@ -1,20 +1,30 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <mpi.h>
-#include <assert.h>
+#include <sys/stat.h>
+// #include <assert.h>
 
-#include "helper.h"
-
-#define MATRIX_SIZE 40960
-#define MAX_ITER 1000
-#define EPS 1.0e-10
-#define TOL 1.0e-10
+#include "utils/helper.h"
 
 int main(int argc, char *argv[])
 {
-  int all_rank, all_size, all_k = 0;
+  if (argc != 5)
+  {
+    fprintf(stderr, "\n[ERROR]\n%s Must be run with exactly 4 argument, found %d!\n\nUsage: %s <MATRIX_SIZE> <MAX_ITER> <EPS> <TOL>\n\n",
+            argv[0], argc - 1, argv[0]);
+    exit(1);
+  }
+
+  int MATRIX_SIZE, MAX_ITER, all_rank, all_size, all_k = 0;
+  float EPS, TOL;
 
   MPI_Init(&argc, &argv);
+
+  MATRIX_SIZE = atoi(argv[1]);
+  MAX_ITER = atoi(argv[2]);
+  EPS = atof(argv[3]);
+  TOL = atof(argv[4]);
+
   MPI_Comm_rank(MPI_COMM_WORLD, &all_rank);
   MPI_Comm_size(MPI_COMM_WORLD, &all_size);
 
@@ -38,8 +48,8 @@ int main(int argc, char *argv[])
 
   if (all_rank == 0)
   {
-    fprintf(stdout, "[%2d] mat_size: %d, vec_size: %d\n",
-            all_rank, mat_size_per_rank, vec_size_per_rank);
+    // fprintf(stdout, "[%2d] mat_size: %d, vec_size: %d\n",
+    //         all_rank, mat_size_per_rank, vec_size_per_rank);
 
     root_A = generate_A(MATRIX_SIZE);
     all_b = generate_b(MATRIX_SIZE);
@@ -147,18 +157,40 @@ int main(int argc, char *argv[])
     root_sys_time_seq += MPI_Wtime();
 
     int ok = more_or_less_equal(root_x, root_x_seq, MATRIX_SIZE, TOL);
-    assert(ok);
+    // assert(ok);
 
-    fprintf(stdout, "+--------+--------+--------+--------------+--------------+--------+--------------+--------------+--------+\n");
-    fprintf(stdout, "|      N | max_it |     np |     sys_time |       r_norm |     it | seq_sys_time |   seq_r_norm | seq_it |\n");
-    fprintf(stdout, "+--------+--------+--------+--------------+--------------+--------+--------------+--------------+--------+\n");
+    // print_mat(root_A, MATRIX_SIZE, MATRIX_SIZE);
+    // print_vec(all_b, MATRIX_SIZE);
+    // print_vec(root_x, MATRIX_SIZE);
 
-    fprintf(stdout, "| %6d | %6d | %6d | %12.6f | %12.6e | %6d | %12.6f | %12.6e | %6d |\n",
-            MATRIX_SIZE, MAX_ITER, all_size,
+    fprintf(stdout, "+--------+--------+--------+--------------+--------------+--------+--------------+--------------+--------+--------------+--------------+--------+\n");
+    fprintf(stdout, "|      N |     np | max_it |          eps |          tol |  is_ok |     sys_time |       r_norm |     it | seq_sys_time |   seq_r_norm | seq_it |\n");
+    fprintf(stdout, "+--------+--------+--------+--------------+--------------+--------+--------------+--------------+--------+--------------+--------------+--------+\n");
+
+    fprintf(stdout, "| %6d | %6d | %6d | %12.6e | %12.6e | %6d | %12.6f | %12.6e | %6d | %12.6f | %12.6e | %6d |\n",
+            MATRIX_SIZE, all_size, MAX_ITER, EPS, TOL, ok,
             root_sys_time, all_r_norm, all_k,
             root_sys_time_seq, root_r_norm_seq, root_k_seq);
 
-    fprintf(stdout, "+--------+--------+--------+--------------+--------------+--------+--------------+--------------+--------+\n");
+    fprintf(stdout, "+--------+--------+--------+--------------+--------------+--------+--------------+--------------+--------+--------------+--------------+--------+\n");
+
+    char *log_file_name = "logs/conjugate-gradient.csv";
+
+    struct stat buffer;
+
+    if (stat(log_file_name, &buffer) != 0)
+    {
+      FILE *log_file = fopen(log_file_name, "w");
+      fprintf(log_file, "n,np,max_it,eps,tol,is_ok,sys_time,r_norm,it,seq_sys_time,seq_r_norm,seq_it\n");
+      fclose(log_file);
+    }
+
+    FILE *log_file = fopen(log_file_name, "a");
+    fprintf(log_file, "%d,%d,%d,%.6e,%6e,%d,%.6f,%.6e,%d,%.6f,%.6e,%d\n",
+            MATRIX_SIZE, all_size, MAX_ITER, EPS, TOL, ok,
+            root_sys_time, all_r_norm, all_k,
+            root_sys_time_seq, root_r_norm_seq, root_k_seq);
+    fclose(log_file);
 
     free(root_A);
     free(root_x);
